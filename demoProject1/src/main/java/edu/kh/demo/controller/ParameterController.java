@@ -137,10 +137,10 @@ public class ParameterController {
 		 *** @ModelAttribute 내부 과정 ***
 		 
 		 Member inputMember = new Member();
-		 inputMember.setMemberId("memberId에 작성된 value값";
-		 inputMember.setMemberId("memberPw에 작성된 value값";
-		 inputMember.setMemberId("memberName에 작성된 value값";
-		 inputMember.setMemberId("memberAge에 작성된 value값";
+		 inputMember.setMemberId("memberId에 작성된 value값");
+		 inputMember.setMemberId("memberPw에 작성된 value값");
+		 inputMember.setMemberId("memberName에 작성된 value값");
+		 inputMember.setMemberId("memberAge에 작성된 value값");
 		 
 		 */
 		

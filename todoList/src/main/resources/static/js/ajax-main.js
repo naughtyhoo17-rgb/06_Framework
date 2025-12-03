@@ -175,6 +175,7 @@ const selectTodoList = () => {
             const a = document.createElement("a"); // a태그 생성
             a.innerText = todo[key]; // todo["todoTitle"]
             a.href = "/ajax/detail?todoNo=" + todo.todoNo;
+            // <a href="/ajax/detail?todoNo=1">테스트 1 제목</a>
             td.append(a);
             tr.append(td);
 
@@ -205,6 +206,122 @@ const selectTodoList = () => {
 
     });
 };
+
+
+// 비동기로 할 일 상세 조회하는 함수
+const selectTodo = (url) => {
+
+  // fetch() 요청 보내기
+  // url == /ajax/detail?todoNo=1
+  fetch(url)
+    .then(resp => resp.json())
+    .then(todo => {
+
+      // popuplayer에 조회해 온 값 출력
+      popupTodoNo.innerText = todo.todoNo;
+      popupTodoTitle.innerText = todo.todoTitle;
+      popupComplete.innerText = todo.complete;
+      popupRegDate.innerText = todo.regDate;
+      popupTodoContent.innerText = todo.todoContent;
+
+      // popuplayer의 제목 클릭 시 popuplayer 보여지기
+      popupLayer.classList.remove("popup-hidden");
+
+    });
+};
+
+// popuplayer의 X 버튼 클릭 시 popuplayer 보여지기
+popupClose.addEventListener("click", () => {
+
+  // display: none 처리가 되는 class (다시) 추가
+  popupLayer.classList.add("popup-hidden");
+
+});
+
+// 삭제 버튼 클릭 시
+deleteBtn.addEventListener("click", () => {
+
+  // 취소 클릭 시 해당 함수 종료 (삭제 취소)
+  if (!confirm("정말 삭제해!?!?!?!")) {
+    return;
+  }
+
+  // 삭제할 할 일 번호 얻어오기
+  const todoNo = popupTodoNo.innerText;
+
+  // 확인 버튼 클릭 시 삭제 비동기 요청 (DELETE 방식)
+  fetch("/ajax/delete", {
+    method : "DELETE", // @DeleteMapping() 처리
+    headers : { "Content-Type": "application/json" },
+    body : todoNo // 단일 값 하나는 JSON 형태로 자동 변환되어 전달됨
+    // 원래는 body : JSON.stringify(todoNo) 라고 명시하는 것이 옳음
+  })
+    .then(resp => resp.text())
+    .then(result => {
+      if (result > 0) {
+        alert("삭제 성공!");
+
+        // 상세 조회 popuplayer 닫기
+        popupLayer.classList.add("popup-hidden");
+
+        // 전체 & 완료된 할 일 갯수 다시 조회
+        // 할 일 목록 다시 조회
+        getTotalCount();
+        getCompleteCount();
+        selectTodoList();
+
+      } else {
+        alert("삭제 실패!");
+      }
+
+    })
+
+});
+
+// 완료 여부 변경 클릭 시
+changeComplete.addEventListener("click", () => {
+
+  // 현재의 완료 여부를 반대값으로 변경한 값, 변경할 대상의 할 일 번호 얻어오기
+  const complete = popupComplete.innerText === 'Y' ? 'N' : 'Y';
+  const todoNo = popupTodoNo.innerText;
+
+  // SQL 수행에 필요한 위의 두 값을 JS 객체 형태로 묶기
+  const obj = {"todoNo" : todoNo, "complete" : complete};
+    // ex) {"todoNo" : 2, "complete" : "Y"}
+  
+  // 비동기로 완료 여부 변경 요청 (PUT 방식)  
+  fetch("/ajax/changeComplete", {
+    method : "PUT", // @PutMapping
+    headers : {"Content-Type" : "application/json"},
+    body : JSON.stringify(obj)
+  })
+  .then(resp => resp.text())
+  .then(result => {
+
+    if(result > 0) { // 성공
+
+      // selectTodo() : update된 DB 데이터를 재조회해서 화면에 출력하는 것은 서버에 부하가 큼
+      // thus, 상세 조회 팝업 내에서 Y <-> N 변경
+      popupComplete.innerText = complete;
+
+      // 기존 완료된 Todo 갯수 +/- 1 (getCompleteCount() : 서버에 부하가 오므로 하지 않는다)
+      const count = Number(completeCount.innerText);
+
+      if(complete === 'Y') completeCount.innerText = count + 1;
+      else completeCount.innerText = count - 1;
+
+      selectTodoList(); // 서버에 부하를 주지 않는 방법도 있지만 이게 더 효율적이라 강행
+
+    } else { // 실패
+      alert("변경 실패!");
+    }
+
+  })
+
+});
+
+
+
 
 getTotalCount();
 getCompleteCount();
