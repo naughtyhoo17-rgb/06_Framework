@@ -42,8 +42,8 @@ public class ParameterController {
 	public String paramTest1(HttpServletRequest req) {
 		
 		String inputName = req.getParameter("inputName");
-		String inputAddress = req.getParameter("inputAddress");
 		int inputAge = Integer.parseInt(req.getParameter("inputAge"));
+		String inputAddress = req.getParameter("inputAddress");
 		
 		log.debug("inputName : " + inputName);
 		log.debug("inputAge : " + inputAge);
@@ -72,12 +72,12 @@ public class ParameterController {
 	 *
 	 * value : 전달받은 input 태그의 name 속성값(파라미터 key)
 	 * required : 입력된 name 속성값 파라미터 필수 여부 지정(기본값 true)
-	 * -> required=true인 파라미터가 존재하지 않는다면 400(Bad Request) 에러 발생
+	 * => required=true인 파라미터가 존재하지 않는다면 400(Bad Request) 에러 발생
 	 * -> "" (빈문자열)일 때는 에러 발생 X
 	 * (파라미터가 존재하지 않는것이 아니라 name속성값="" 로 넘어오기 때문에)
 	 *
 	 * defaultValue : 파라미터 중 일치하는 name속성값이 없을 경우에 대입할 값 지정.
-	 * -> required=false 인 경우 사용
+	 * => required=false 인 경우 사용
 	 *
 	 *
 	 * */
@@ -109,7 +109,7 @@ public class ParameterController {
 		log.debug("fruitList : " + fruitList);
 		log.debug("paramMap : " + paramMap);
 		
-		// @RequestParam Map<String, Object> paraMap
+		// @RequestParam Map<String, Object> paramMap
 		// => 제출된 모든 parameter가 Map에 저장된다
 		// => 같은 name 속성을 가진 parameter는 배열이나 List 형태가 아님
 		// => 첫 번째로 제출된 value만 저장됨
