@@ -1,0 +1,118 @@
+package edu.kh.project.member.controller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.SessionAttributes;
+import org.springframework.web.bind.support.SessionStatus;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import edu.kh.project.member.model.dto.Member;
+import edu.kh.project.member.model.service.MemberService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
+
+/* @SessionAttributes({"key", "key", "key", ...})
+ * - Model에 추가된 속성 중 key값이 일치하는 속성을 session scope로 변경
+ */
+
+@SessionAttributes({"loginMember"})
+@Controller
+@RequestMapping("member")
+@Slf4j
+public class MemberController {
+
+	@Autowired // 의존성 주입(DI)
+	private MemberService service;
+	
+	/** [로그인]
+	 * - 특정 사이트에 아이디(현재는 이메일)/비밀번호 등을 입력해서
+	 *  해당 정보가 있으면 조회/서비스 이용 가능케 하는 것
+	 *  
+	 * - 로그인 한 회원 정보를 session에 기록하여
+	 *  로그아웃/브라우저 종료 시까지 해당 정보를 계속 이용가능케 함
+	 *   
+	 * @param inputMember : 커맨드 객체(@ModelAttribute 생략 가능)
+	 * 						memberEmail, memberPw 세팅된 상태 (thru 로그인 과정)
+	 * @return
+	 */
+	@PostMapping("login") // /member/login 요청 POST 방식 mapping
+	public String login(@ModelAttribute Member inputMember,
+						RedirectAttributes ra, Model model,
+						@RequestParam(value="saveId", required=false) String saveId,
+						HttpServletResponse resp) {
+		
+		// 로그인 서비스 호출
+		try {
+			
+			Member loginMember = service.login(inputMember);
+			
+			log.debug("loginMember : " + loginMember);
+			
+			if(loginMember == null) { // 로그인 실패 시
+				
+				ra.addFlashAttribute("message", "아이디 또는 비밀번호가 일치하지 않습니다");
+				
+			} else { // 로그인 성공 시
+				
+				// 1. request scope에 세팅됨
+				model.addAttribute("loginMember", loginMember);
+				
+				// 2. 클래스 위에 @SessionAttributes() 어노테이션 작성하여 session scope로 이동
+				
+				// ********** Cookie **********
+				// 이메일 저장
+				
+				// 쿠키 객체 생성(K:V)
+				Cookie cookie = new Cookie("saveId", loginMember.getMemberEmail());
+				// saveId=user01@kh.or.kr
+				
+				// 쿠키가 적용될 경로 설정 => 클라이언트가 어떤 요청을 할 때 쿠키가 첨부될 지 지정
+				cookie.setPath("/"); // "/" => IP 또는 도메인 또는 localhost => 메인페이지 이하 모든 주소
+				
+				// 쿠키의 만료 기간 지정
+				if(saveId != null) { // '아이디 저장' 체크한 경우
+					cookie.setMaxAge(60*60*24*30); // 초 단위 (30일)
+				} else { // 미체크
+					cookie.setMaxAge(0); // 0초 (클라이언트의 쿠키 삭제)
+				}
+				
+				// 응답 객체에 쿠키 추가하여 클라이언트에게 전달
+				resp.addCookie(cookie);				
+				
+			}
+			
+		} catch (Exception e) {
+			log.info("로그인 중 예외 발생!");
+			e.printStackTrace();
+		}
+		
+		return "redirect:/"; // 메인 페이지 재요청
+	}
+
+	/** 로그아웃 : session에 저장된 로그인된 회원 정보를 없애주어야 함
+	 * @param SessionStatus : @SessionAttributes()로 지정된 특정 속성을
+  	 *						 session에서 제거할 수 있는 기능을 제공하는 객체
+	 * @return
+	 */
+	@GetMapping("logout") // /member/logout 요청 GET 방식 mapping
+	public String logout(SessionStatus status) {
+		
+		status.setComplete(); // session을 완료 시킴
+		
+		return "redirect:/";
+		
+	}
+}
+
+
+
+
+
+
