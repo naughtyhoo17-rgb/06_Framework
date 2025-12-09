@@ -1,0 +1,31 @@
+package edu.kh.project.myPage.model.mapper;
+
+import org.apache.ibatis.annotations.Mapper;
+
+import edu.kh.project.member.model.dto.Member;
+
+@Mapper
+public interface MyPageMapper {
+
+	/** 회원 정보 수정 SQL 실행
+	 * @param inputMember
+	 * @return
+	 */
+	public int updateInfo(Member inputMember);
+
+	/** 비밀번호 수정 SQL 실행
+	 * @param newPw
+	 * @return
+	 */
+	public int changePw(Member loginMember);
+
+	/** 비밀번호 확인 SQL 실행
+	 * @param memberNo
+	 * @return
+	 */
+	public String checkPw(int memberNo);
+
+
+	
+
+}

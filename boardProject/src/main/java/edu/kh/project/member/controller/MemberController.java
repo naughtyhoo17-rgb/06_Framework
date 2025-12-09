@@ -138,6 +138,48 @@ public class MemberController {
 		return service.checkNickname(memberNickname);
 	}
 	
+	/** 회원가입
+	 * @param inputMember : 커맨드 객체(입력된 회원정보)
+	 * 						=> memberEmail, memberPw, memberNickname, memberTel
+     *						  (& memberAddress의 우편번호, 필요는 없는 상황)
+	 * @param memberAddress : 입력한 주소 input 3개의 값을 배열로 전달
+     * 						 [우편번호, 도로명/지번 주소, 상세주소]
+	 * @param ra : RedirectAttributes로 redirect 시 1회 성으로 req->session->req로 전달되는 객체
+	 * @return
+	 */
+	@PostMapping("signup")
+	public String signup(@ModelAttribute Member inputMember, 
+					@RequestParam("memberAddress") String[] memberAddress,
+					RedirectAttributes ra) {
+		
+		// 회원가입 서비스 호출
+		int result = service.signup(inputMember, memberAddress);
+		
+		String path = null;
+		String message = null;
+		
+		if(result > 0) { // 회원가입 성공
+			
+			message = inputMember.getMemberNickname() + "님의 가입을 환영합니다!";
+			
+			path = "/";
+			
+		} else { // 회원가입 실패
+			
+			message = "회원가입 실패";
+			
+			path = "signup";
+		}
+		
+		ra.addFlashAttribute("message", message);
+		
+		return "redirect:" + path;
+		// 성공 시 => redirect:/ (메인페이지 재요청)
+		// 실패 시 => redirect:signup (상대경로, /member/signup GET 방식 재요청 => signupPage() )
+	}
+	
+	
+	
 }
 
 
