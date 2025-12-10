@@ -9,6 +9,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttribute;
+import org.springframework.web.bind.annotation.SessionAttributes;
+import org.springframework.web.bind.support.SessionStatus;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import edu.kh.project.member.model.dto.Member;
@@ -26,6 +29,7 @@ import lombok.extern.slf4j.Slf4j;
   - @SessionAttributes를 통해 session에 등록된 속성을 꺼내올 때 사용하는 어노테이션
   - 메서드의 매개변수에 @SessionAttribute("loginMember") Member loginMember 작성
  */
+@SessionAttributes({"loginMember"})
 @Controller
 @RequestMapping("myPage")
 @Slf4j
@@ -173,9 +177,79 @@ public class MyPageController {
 		return "redirect:" + path;
 	}
 	
+	/** 회원 탈퇴
+	 * @param memberPw : 제출받은(사용자가 입력한) 비밀번호
+	 * @param loginMember : 현재 로그인한 회원 정보를 가진 객체(session scope)
+	 					   => 회원번호 필요! (SQL 조건)
+	 * @param status : @SessionAttributes()와 함께 사용
+	 * @return
+	 */
+	@PostMapping("secession") // /myPage/secession POST 요청 mapping
+	public String secession(@RequestParam("memberPw") String memberPw,
+							@SessionAttribute("loginMember") Member loginMember,
+							SessionStatus status,
+							RedirectAttributes ra) {
+
+		// 로그인한 회원의 회원번호 꺼내오기
+		int memberNo = loginMember.getMemberNo();
+		
+		// 서비스 호출(입력받은 비밀번호, 로그인한 회원번호)
+		int result = service.secession(memberPw, memberNo);
+		
+		String message = null;
+		String path = null;
+		
+		if(result > 0) { // 탈퇴 성공 => 메인 페이지 재요청
+			
+			message = "탈퇴가 완료되었습니다";
+			path = "/";
+			
+			status.setComplete(); // session 비우기(로그아웃 상태로 변경)
+			
+		} else { // 탈퇴 실패 => 회원 탈퇴 페이지 재요청
+			
+			message = "탈퇴 실패";
+			path = "secession";
+		}
+
+		ra.addFlashAttribute("message", message);
+		
+		return "redirect:" + path;
+	}
 	
 	
-	
+	/*
+	 * Spring에서 파일 처리하는 방법
+	 
+	  - enctype="multipart/form-data"로 클라이언트 요청을 받으면 (문자, 숫자, 파일 등이 섞인 요청)
+	  	이를 MultipartResolver(FileConfig에 정의)를 이용해 섞여있는 parameter 분리
+	  
+	  => 문자열, 숫자 -> String
+	  	 파일 -> MultipartFile
+	 */
+	@PostMapping("file/test1") // /myPage/file/test1 POST 요청 mapping
+	public String fileUpload1(@RequestParam("uploadFile") MultipartFile uploadFile,
+							 RedirectAttributes ra) {
+		
+		try {
+			
+			String path = service.fileUpload1(uploadFile);
+			// /myPage/file/파일명.jpg
+			
+			// 파일이 실제로 서버 컴퓨터에 저장되어 웹에서 접근할 수 있는 경로가 반환된 경우
+			if(path != null) {
+				ra.addFlashAttribute("path", path);
+			}
+			
+		} catch (Exception e) {
+			
+			e.printStackTrace();
+			log.info("파일 업로드 예제1 중 예외 발생");
+			
+		}
+		
+		return "redirect:/myPage/fileTest";
+	}
 	
 }
 

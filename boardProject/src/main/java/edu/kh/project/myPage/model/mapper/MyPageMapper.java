@@ -25,6 +25,12 @@ public interface MyPageMapper {
 	 */
 	public String checkPw(int memberNo);
 
+	/** 회원 탈퇴 SQL (UPDATE, 곧바로 DELETE 아님)
+	 * @param memberNo
+	 * @return
+	 */
+	public int secession(int memberNo);
+
 
 	
 

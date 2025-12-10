@@ -67,9 +67,9 @@ FROM "MEMBER"
 WHERE MEMBER_EMAIL = 'user01@kh.or.kr'
 AND MEMBER_DEL_FL = 'N';
 
-
-
-
+UPDATE  "MEMBER" SET
+MEMBER_DEL_FL = 'N'
+WHERE MEMBER_NO = 2;
 -----------------------------------------
 
 /* 이메일, 인증키 저장 테이블 생성 */
