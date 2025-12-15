@@ -403,9 +403,27 @@ COMMIT;
 
 SELECT * FROM "BOARD";
 
----------------------------------------------------
--- 부모 댓글 번호 NULL 허용
+-- 번호 / 제목[댓글 개수] / 작성자 닉네임 / 작성일 / 조회 수 / 좋아요 개수
+SELECT BOARD_NO, BOARD_TITLE, MEMBER_NICKNAME, READ_COUNT,
+(SELECT COUNT(*) FROM "COMMENT" C
+WHERE C.BOARD_NO = B.BOARD_NO) COMMENT_COUNT,
+(SELECT COUNT(*) FROM "BOARD_LIKE" L
+WHERE L.BOARD_NO = B.BOARD_NO) LIKE_COUNT,
+CASE
+WHEN SYSDATE - B.BOARD_WRITE_DATE < 1 / 24 / 60
+THEN FLOOR((SYSDATE - B.BOARD_WRITE_DATE) * 24 * 60 * 60) || '초 전'
+WHEN SYSDATE - B.BOARD_WRITE_DATE < 1 / 24
+THEN FLOOR((SYSDATE - B.BOARD_WRITE_DATE) * 24 * 60) || '분 전'
+WHEN SYSDATE - B.BOARD_WRITE_DATE < 1
+THEN FLOOR((SYSDATE - B.BOARD_WRITE_DATE) * 24) || '시간 전'
+ELSE TO_CHAR(BOARD_WRITE_DATE, 'YYYY-MM-DD')
+END BOARD_WRITE_DATE
+FROM "BOARD" B
+JOIN "MEMBER" USING(MEMBER_NO)
+WHERE BOARD_DEL_FL = 'N'
+ORDER BY BOARD_NO DESC;
 
+---------------------------------------------------
 
 /* 댓글 번호 시퀀스 생성 */
 CREATE SEQUENCE SEQ_COMMENT_NO NOCACHE;
@@ -429,6 +447,9 @@ END;
 
 COMMIT;
 
+SELECT COUNT(*) FROM "COMMENT";
+
+-- 여기까지 12/15 수행;
 -----------------------------------------------------
 
 /* BOARD_IMG 테이블용 시퀀스 생성 */
