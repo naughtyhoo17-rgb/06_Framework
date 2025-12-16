@@ -1,0 +1,45 @@
+package edu.kh.project.common.config;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import edu.kh.project.common.interceptor.BoardTypeInterceptor;
+
+// 인터셉터가 어떤 요청을 가로챌 지 설정하는 용도의 클래스
+
+@Configuration // 서버가 켜지면 내부 메서드 모두 수행
+public class InterceptorConfig implements WebMvcConfigurer{
+
+	@Bean // 인터셉터 클래스 Bean 등록
+		  // 개발자가 수동으로 만든 객체 => 관리는 Spring Container가 수행
+	public BoardTypeInterceptor boardTypeInterceptor() {
+		
+		return new BoardTypeInterceptor();
+	
+	}
+	
+	// 동작할 인터셉터 객체를 추가해주는 메서드
+	@Override
+	public void addInterceptors(InterceptorRegistry registry) {
+
+		// Bean으로 등록된 BoardTypeInterceptor를 얻어와 등록하기 위한 절차
+		registry.addInterceptor( boardTypeInterceptor() )
+		.addPathPatterns("/**") // 가로챌 요청 주소 지정 => /** : / 이하 모든 요청
+		.excludePathPatterns("/css/**", "/js/**", "/images/**", "/favicon.ico" );
+		// 가로채지 않을 요청 주소 지정(정적 리소스 요청은 가로채지 않음)
+	
+	
+	}
+
+	
+	
+
+	
+}
+
+
+
+
+

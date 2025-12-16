@@ -124,12 +124,11 @@
 					<li><a th:href="@{/board/{boardCode}(boardCode=${boardCode}, cp=*{prevPage})}">&lt;</a></li>
 
 					<!-- 특정 페이지로 이동 -->
-					
 					<th:block th:each="i : *{#numbers.sequence(startPage, endPage)}">
 						
 						<!-- 현재 보고있는 페이지 -->
 						<li th:if="${i} == *{currentPage}">
-							<a class="current" th:text="${i}">현재페이지</a>
+							<a class="current" th:text="${i}">현재 페이지</a>
 						</li>
 						
 						<!-- 보고있지 않은 페이지 -->
