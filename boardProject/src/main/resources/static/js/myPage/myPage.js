@@ -183,6 +183,7 @@ const defaultImageUrl = `${window.location.origin}/images/user.png`;
 let statusCheck = -1; // -1 : 초기 상태, 0 : 이미지 삭제, 1 : 새 이미지 선택
 let previousImage = profileImg.src; // 이전 이미지 URL 기록 (초기 상태의 이미지 URL 저장)
 let previousFile = null;  // 이전에 선택된 파일 객체를 저장
+
 // 이미지 선택 시 미리보기 및 파일 크기 검사
 imageInput.addEventListener("change", () => {
    // change 이벤트 : 기존에 있던 값과 달라지면 change 이벤트 일어남

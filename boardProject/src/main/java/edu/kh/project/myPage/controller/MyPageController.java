@@ -262,10 +262,10 @@ public class MyPageController {
 		return "redirect:/myPage/fileTest";
 	}
 	
-	@PostMapping("file/test2")  // /myPage/file/test2 POST 요청 매핑
+	@PostMapping("file/test2")  // /myPage/file/test2 POST 요청 mapping
 	public String fileUpload2(@RequestParam("uploadFile") MultipartFile uploadFile, 
-							@SessionAttribute("loginMember") Member loginMember,
-							RedirectAttributes ra) {
+							  @SessionAttribute("loginMember") Member loginMember,
+							  RedirectAttributes ra) {
 		
 		try {
 			
@@ -288,24 +288,24 @@ public class MyPageController {
 			
 		} catch (Exception e) {
 			e.printStackTrace();
-			log.info("파일 업로드 테스트2 중 예외발생");
+			log.info("파일 업로드 테스트2 중 예외 발생");
 		}
 		
 		return "redirect:/myPage/fileTest";
 	}
 	
-	@PostMapping("file/test3") // /myPage/file/test3 POST 요청 매핑
+	@PostMapping("file/test3") // /myPage/file/test3 POST 요청 mapping
 	public String fileUpload3(@RequestParam("aaa") List<MultipartFile> aaaList, 
-							@RequestParam("bbb") List<MultipartFile> bbbList,
-							@SessionAttribute("loginMember") Member loginMember,
-							RedirectAttributes ra) throws Exception {
+							  @RequestParam("bbb") List<MultipartFile> bbbList,
+							  @SessionAttribute("loginMember") Member loginMember,
+							  RedirectAttributes ra) throws Exception {
 		
 		// aaa 파일 미제출 시
-		// 0번, 1번 인덱스로 구성 - 파일은 모두 비어있음
+		// => 0번, 1번 인덱스로 구성 - 파일은 모두 비어있음
 		//log.debug("aaaList: "+ aaaList); // [요소, 요소]
 		
 		// bbb(multiple) 파일 미제출 시
-		// 0번 인덱스로 구성 - 파일이 비어있음
+		// => 0번 인덱스로 구성 - 파일이 비어있음
 		//log.debug("bbbList: "+ bbbList); // [요소]
 		
 		// 여러 파일 업로드 서비스 호출
@@ -329,7 +329,7 @@ public class MyPageController {
 		return "redirect:/myPage/fileTest";
 	}
 	
-	@PostMapping("profile") // /myPage/profile POST 요청 매핑
+	@PostMapping("profile") // /myPage/profile POST 요청 mapping
 	public String profile(@RequestParam("profileImg") MultipartFile profileImg,
 						@SessionAttribute("loginMember") Member loginMember,
 						RedirectAttributes ra) throws Exception {
@@ -347,7 +347,7 @@ public class MyPageController {
 		
 		ra.addFlashAttribute("message", message);
 		
-		return "redirect:profile"; // 리다이렉트 - /myPage/profile GET 요청
+		return "redirect:profile"; // redirect - /myPage/profile GET 요청
 	}
 	
 	

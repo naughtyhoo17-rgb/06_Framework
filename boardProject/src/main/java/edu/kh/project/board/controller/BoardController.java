@@ -1,5 +1,6 @@
 package edu.kh.project.board.controller;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,8 +10,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.SessionAttribute;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import edu.kh.project.board.model.dto.Board;
+import edu.kh.project.board.model.dto.BoardImg;
 import edu.kh.project.board.model.dto.BoardService;
+import edu.kh.project.member.model.dto.Member;
 import lombok.extern.slf4j.Slf4j;
 
 @Controller
@@ -54,9 +60,16 @@ public class BoardController {
 			// 게시글 목록 조회 서비스 호출
 			map = service.selectBoardList(boardCode, cp);
 			
-		} else { // 검색인 경우
+		} else { // 검색인 경우 => paramMap에 key라는 k에 접근하면 mapping된 value값 반환
+								// ex) {key=w, query=짱구} => w 반환
+			
+			// boardCode를 paramMap에 추가
+			paramMap.put("boardCode", boardCode);
+			// => paramMap은 {key=w, query=짱구, boardCode=1}
 			
 			// 검색(검색하고 싶은 게시글 목록 조회) 서비스 호출
+			map = service.searchList(paramMap, cp);
+			
 			
 		}
 		
@@ -68,6 +81,76 @@ public class BoardController {
 		return "board/boardList";
 	}
 	
+	
+	// 상세 조회 요청 주소
+	// /board/1/2000
+	// /board/2/1960
+	@GetMapping("{boardCode:[0-9]+}/{boardNo:[0-9]+}")
+	public String boardDetail(@PathVariable("boardCode") int boardCode,
+							  @PathVariable("boardNo") int boardNo,
+							  @SessionAttribute(value = "loginMember", required = false) Member loginMember,
+							  RedirectAttributes ra, Model model) {
+		
+		// 게시글 상세 조회 서비스 호출
+		// 1) Map으로 전달할 parameter 묶기
+		Map<String, Integer> map = new HashMap<>();
+		map.put("boardCode", boardCode);
+		map.put("boardNo", boardNo);
+		
+		// 로그인 상태인 경우에만 memberNo를 map 추가
+		// LIKE_CHECK시 이용 (로그인한 사람이 좋아요 누른 게시글인지 체크하기 위함)
+		if(loginMember != null) {
+			map.put("memberNo", loginMember.getMemberNo());
+		}
+		
+		// 2) 서비스 호출
+		Board board = service.selectOne(map);
+		
+		//log.debug("board : " + board);
+		
+		String path = null;
+		
+		if(board == null) { // 조회 결과가 없는 경우
+
+			path = "redirect:/board/" + boardCode; // 현재 보고있는 게시판 목록으로 재요청
+			
+			ra.addFlashAttribute("message", "게시글이 존재하지 않습니다");
+			
+		} else { // 조회 결과가 있는 경우
+			
+			path = "board/boardDetail";
+			// src/main/resources/templates/board/boardDetail.html로 forward
+			
+			// board - 게시글 일반 내용 + imageList + commentList
+			model.addAttribute("board", board);
+			
+			// 조회된 이미지 목록(imageList)이 있을 경우
+			if( !board.getImageList().isEmpty() ) {
+				
+				BoardImg thumbnail = null;
+				
+				// imageList의 0번 index == IMG_ORDER가 가장 빠른 순서
+				
+				// 만약 imageList의 0번 째 요소의 IMG_ORDER가 0 == 썸네일
+				if(board.getImageList().get(0).getImgOrder() == 0) {
+					thumbnail = board.getImageList().get(0);
+				}
+				
+				// thumbnail 변수에는 imageList의 0번 째 요소가 썸네일이면 썸네일 이미지의 BoardImg객체,
+				// 썸네일이 아니라면 null
+				model.addAttribute("thumbnail", thumbnail);
+				
+				// start라는 key에 thumbnail이 null이 아닐 때 1, null일 때 0 저장
+				model.addAttribute("start", thumbnail != null ? 1 : 0);
+				// 썸네일 있을 때 => start = 1
+				// 썸네일 없을 때(일반이미지만 있거나, 등록된 이미지가 아예 없는 경우) => start = 0
+			}
+						
+		}
+		
+		
+		return "";
+	}
 }
 
 

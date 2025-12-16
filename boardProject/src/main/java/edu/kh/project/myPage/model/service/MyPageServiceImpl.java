@@ -120,13 +120,13 @@ public class MyPageServiceImpl implements MyPageService{
 	@Override
 	public int fileUpload2(MultipartFile uploadFile, int memberNo) throws Exception{
 
-		// MultipartFile이 제공하는 메소드
-		// - isEmpty() : 업로드된 파일이 없을경우 true / 있다면 false
-		// - getSize() : 파일 크기
-		// - getOriginalFileName() : 원본 파일명
-		// - transferTo(경로) :
-		// 메모리 또는 임시 저장 경로에 업로드된 파일을
-		// 원하는 경로에 실제로 전송(서버 어떤 폴더에 저장할지 지정)
+		/* MultipartFile이 제공하는 메소드
+		  - isEmpty() : 업로드된 파일이 없을경우 true / 있다면 false
+		  - getSize() : 파일 크기
+		  - getOriginalFileName() : 원본 파일명
+		  - transferTo(경로) : 메모리 또는 임시 저장 경로에 업로드된 파일을
+ 					원하는 경로에 실제로 전송(서버 어떤 폴더에 저장할지 지정)
+		*/
 
 		// 업로드된 파일이 없다면
 		if (uploadFile.isEmpty()) {
@@ -144,14 +144,16 @@ public class MyPageServiceImpl implements MyPageService{
 		String webPath = "/myPage/file/";
 
 		// 2. DB에 전달할 데이터를 DTO로 묶어서 INSERT
-		// webPath, memberNo, 원본파일명, 변경된파일명
+		// webPath, memberNo, 원본 파일명, 변경된 파일명
 		String fileRename = Utility.fileRename(uploadFile.getOriginalFilename());
 
-		// Builder 패턴을 이용해서 UploadFile 객체 생성
-		// 장점 1) 반복되는 참조변수명, set 구문 생략
-		// 장점 2) method chaining을 이용하여 한줄로 작성 가능
+		/* Builder 패턴을 이용해서 UploadFile 객체 생성
+		  - 장점 1) 반복되는 참조변수명, set 구문 생략
+		  - 장점 2) method chaining을 이용하여 한줄로 작성 가능 */
 		UploadFile uf = UploadFile.builder().memberNo(memberNo).filePath(webPath)
-				.fileOriginalName(uploadFile.getOriginalFilename()).fileRename(fileRename).build();
+						.fileOriginalName(uploadFile.getOriginalFilename())
+						.fileRename(fileRename)
+						.build();
 
 		int result = mapper.insertUploadFile(uf);
 
@@ -166,7 +168,7 @@ public class MyPageServiceImpl implements MyPageService{
 		uploadFile.transferTo(new File(folderPath + fileRename));
 		// C:/uploadFiles/test/20251211100330_00001.jpg
 
-		return result; // 1
+		return result; // 성공했으므로 1
 		
 	}
 	
@@ -189,11 +191,11 @@ public class MyPageServiceImpl implements MyPageService{
 		for(MultipartFile file : aaaList) {
 			
 			if(file.isEmpty()) { // 파일이 없으면 다음 파일
-				continue; // 아래 코드 수행 X 다음반복으로 넘어감..
+				continue; // 아래 코드 수행 X 다음 반복으로 넘어감..
 			}
 			
 			// fileUpload2() 메서드 호출(재활용)
-			// -> 파일 하나 업로드 + DB INSERT
+			// => 파일 하나 업로드 + DB INSERT
 			result1 += fileUpload2(file, memberNo);
 			
 		}
@@ -224,7 +226,7 @@ public class MyPageServiceImpl implements MyPageService{
 		
 		// 업로드한 이미지가 있을 경우
 		if( !profileImg.isEmpty() ) {
-			// updatePath 경로 조합 
+			// updatePath 경로 조합 (PATH와 RENAME 조합) 
 			
 			// 1. 파일명 변경
 			rename = Utility.fileRename(profileImg.getOriginalFilename());
