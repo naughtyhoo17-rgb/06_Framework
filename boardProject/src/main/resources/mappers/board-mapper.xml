@@ -179,9 +179,9 @@
    		
    		<!-- 해당 게시글 댓글 목록 조회 후 필드에 저장 -->
    		<collection 
-	   		property="commnetList"
+	   		property="commentList"
 	   		column="BOARD_NO"
-	   		select="selectCommemtList"
+	   		select="selectCommentList"
 	   		javaType="java.util.ArrayList"
 	   		ofType="Comment"
    		/>
@@ -205,8 +205,8 @@
 		WHERE BOARD_NO = #{boardNo}) C
 		WHERE COMMENT_DEL_FL = 'N'
 		OR 0 != (SELECT COUNT(*) FROM "COMMENT" SUB
-				WHERE SUB.PARENT_COMMENT_NO = C.COMMENT_NO
-				AND COMMENT_DEL_FL = 'N')
+			WHERE SUB.PARENT_COMMENT_NO = C.COMMENT_NO
+			AND COMMENT_DEL_FL = 'N')
 		START WITH PARENT_COMMENT_NO IS NULL
 		CONNECT BY PRIOR COMMENT_NO = PARENT_COMMENT_NO
 		ORDER SIBLINGS BY COMMENT_NO
@@ -234,4 +234,48 @@
 		AND BOARD_NO = #{boardNo}
    	</select>
 
+	<!-- 조회 수 1 증가 -->
+	<update id="updateReadCount">
+		UPDATE "BOARD" SET
+		READ_COUNT = READ_COUNT + 1
+		WHERE BOARD_NO = #{boardNo}
+	</update>
+	
+	<!-- 조회 수 조회 -->
+	<select id="selectReadCount">
+		SELECT READ_COUNT 
+		FROM "BOARD"
+		WHERE BOARD_NO = #{boardNo}
+	</select>
+	
+	<!-- 좋아요 해제 -->
+	<delete id="deleteBoardLike">
+		DELETE FROM "BOARD_LIKE"
+		WHERE MEMBER_NO = #{memberNo}
+		AND BOARD_NO = #{boardNo}
+	</delete>
+	
+	<!-- 좋아요 체크 -->
+	<insert id="insertBoardLike">
+		INSERT INTO "BOARD_LIKE"
+		VALUES(#{memberNo}, #{boardNo})
+	</insert>
+	
+	<!-- 게시글 좋아요 개수 조회 -->
+	<select id="selectLikeCount">
+		SELECT COUNT(*) FROM "BOARD_LIKE"
+		WHERE BOARD_NO = #{boardNo}
+	</select>
+	
+	
 </mapper>
+
+
+
+
+
+
+
+
+
+

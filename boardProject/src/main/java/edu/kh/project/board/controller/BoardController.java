@@ -1,5 +1,7 @@
 package edu.kh.project.board.controller;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -8,8 +10,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttribute;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -17,6 +22,9 @@ import edu.kh.project.board.model.dto.Board;
 import edu.kh.project.board.model.dto.BoardImg;
 import edu.kh.project.board.model.dto.BoardService;
 import edu.kh.project.member.model.dto.Member;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
 @Controller
@@ -89,7 +97,10 @@ public class BoardController {
 	public String boardDetail(@PathVariable("boardCode") int boardCode,
 							  @PathVariable("boardNo") int boardNo,
 							  @SessionAttribute(value = "loginMember", required = false) Member loginMember,
-							  RedirectAttributes ra, Model model) {
+							  RedirectAttributes ra, Model model,
+							  HttpServletRequest req, // 요청에 담긴 쿠키 얻어오기
+							  HttpServletResponse resp // 쿠키 응답
+							  ) {
 		
 		// 게시글 상세 조회 서비스 호출
 		// 1) Map으로 전달할 parameter 묶기
@@ -118,6 +129,81 @@ public class BoardController {
 			
 		} else { // 조회 결과가 있는 경우
 			
+			/* ----------- 쿠키를 이용한 조회 수 증가 시작 -------------- */
+			// 비회원 또는 로그인한 회원 본인의 글이 아닌 경우
+			if(loginMember == null
+				|| board.getMemberNo() != loginMember.getMemberNo()) {
+				
+				// 요청에 담긴 모든 쿠키 얻어오기
+				Cookie[] cookies = req.getCookies();
+				
+				Cookie c = null;
+				
+				for(Cookie temp : cookies) {
+					
+					// 쿠키에 "readBoardNo"가 존재한다면
+					if(temp.getName().equals("readBoardNo")) {
+						c = temp;
+						break;
+					}
+				}
+				
+				int result = 0; // 조회 수 증가 결과를 저장할 변수
+				
+				// 쿠키에 "readBoardNo"가 없을 때
+				if(c == null) {
+					
+					// 새 쿠키 생성("readBoardNo", [게시글 번호])
+					c = new Cookie("readBoardNo", "[" + boardNo + "]");
+					result = service.updateReadCount(boardNo);
+					
+				} else { // 쿠키에 "readBoardNo"가 있을 때
+					//		k	   :	  v
+					// readBoardNo : [2][30][400][2000]
+					
+					// 현재 게시글을 처음 조회한 경우
+					if(c.getValue().indexOf("[" + boardNo + "]") == -1) {
+						
+						// 해당 게시글 번호 쿠키에 누적 & 서비스 호출하여 DB에 누적
+						c.setValue(c.getValue() + "[" + boardNo + "]");
+							// ex) [2][30][400][2000][4000]
+						
+						result = service.updateReadCount(boardNo);
+					}
+					
+				}
+				
+				// 조회 수 증가 성공 & 총 조회 수 조회 성공 시
+				if(result > 0) {
+					
+					// 앞서 조회한 board의 readCount값을 result값으로 세팅
+					board.setReadCount(result);
+					
+					// 쿠키 적용 경로 설정
+					c.setPath("/"); // "/" 이하 경로 요청 시 쿠키 서버로 전달
+					
+					// 쿠키 수명 지정
+						// 현재 시간 얻어오기
+					LocalDateTime now = LocalDateTime.now();
+					
+						// 다음 날의 자정으로 지정
+					LocalDateTime nextDayMidnight = now.plusDays(1).withHour(0)
+													.withMinute(0).withSecond(0).withNano(0);
+					
+						// 다음 날 자정까지 남은 시간 계산 (초 단위)
+					long secondsUntilNextDay = Duration.between(now, nextDayMidnight).getSeconds();
+					
+						// 쿠키 수명 세팅
+					c.setMaxAge((int)secondsUntilNextDay);
+					
+					// 응답 객체를 이용해 클라이언트에게 쿠키 전달
+					resp.addCookie(c);
+				}
+				
+			}
+						
+			/* ----------- 쿠키를 이용한 조회 수 증가 끝 -------------- */
+
 			path = "board/boardDetail";
 			// src/main/resources/templates/board/boardDetail.html로 forward
 			
@@ -149,8 +235,18 @@ public class BoardController {
 		}
 		
 		
-		return "";
+		return path;
 	}
+	
+	// 게시글 좋아요 체크/해제 (비동기)
+	@ResponseBody
+	@PostMapping("like") // /board/like POST 요청 mappping
+	public int boardLike(@RequestBody Map<String, Integer> map) {
+		return service.boardLike(map);
+	}
+	
+	
+	
 }
 
 

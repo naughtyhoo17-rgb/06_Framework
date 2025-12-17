@@ -53,3 +53,93 @@ if (loginEmail != null) { // 로그인 창의 이메일 input 태그가 화면 �
     document.querySelector("input[name='saveId']").checked = true;
   }
 }
+
+document.querySelector("#selectMemberList").addEventListener("click", () => {
+
+  fetch("/member/select")
+  .then(resp => resp.json())
+  .then(memberList => {
+
+    const tbody = document.querySelector("#memberList");
+
+    tbody.innerHTML="";
+
+    for(let member of memberList) {
+      
+      const tr = document.createElement("tr");
+
+      const arr = ['memberNo', 'memberEmail', 'memberNickname', 'memberDelFl']
+
+      for(let key of arr) {
+        const td = document.createElement("td");
+        td.innerText = member[key];
+        tr.append(td);
+      }
+
+      tbody.append(tr);
+    }
+
+  })
+
+});
+
+document.querySelector("#resetPw").addEventListener("click", () => {
+
+  const memberNo = document.querySelector("#resetMemberNo").value;
+
+  if(memberNo.trim().length == 0) {
+    alert("회원번호를 입력해주세요");
+    return;
+  }
+
+  fetch("/member/resetPw", {
+    method : "PUT",
+    headers : {"content-Type" : "application/json"},
+    body : memberNo
+  })
+  .then(resp => resp.text())
+  .then(result => {
+
+    if(result > 0) {
+    
+      alert("비밀번호가 초기화되었습니다.");
+    
+      memberNo = "";
+    } else {
+    
+      alert("회원번호를 확인해주세요");
+    }
+  });
+
+});
+
+document.querySelector("#restorationBtn").addEventListener("click", () => {
+
+  const memberNo = document.querySelector("#restorationMemberNo").value;
+
+  if(memberNo.trim().length == 0) {
+    alert("회원번호를 입력해주세요");
+    return;
+  }
+
+  fetch("/member/restoreDelFl", {
+    method : "PUT",
+    headers : {"content-Type" : "application/json"},
+    body : memberNo
+  })
+  .then(resp => resp.text())
+  .then(result => {
+    
+    if(result > 0) {
+      
+      alert("회원복구 완료");
+      
+      memberNo = "";
+    } else {
+      
+      alert("회원번호를 확인해주세요");
+    }
+
+  })
+
+});
