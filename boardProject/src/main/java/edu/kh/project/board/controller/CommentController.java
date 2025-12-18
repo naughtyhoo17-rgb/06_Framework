@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import edu.kh.project.board.model.dto.Comment;
-import edu.kh.project.board.model.dto.CommentService;
+import edu.kh.project.board.model.service.CommentService;
 
 // @Controller (요청/응답 제어 명시 & Bean 등록)
 // + @ResponseBody (응답 본문으로 응답 데이터 자체 반환)

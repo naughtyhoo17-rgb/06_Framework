@@ -1,4 +1,4 @@
-package edu.kh.project.board.model.dto;
+package edu.kh.project.board.model.service;
 
 import java.util.HashMap;
 import java.util.List;
@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import edu.kh.project.board.model.dto.Board;
+import edu.kh.project.board.model.dto.Pagination;
 import edu.kh.project.board.model.mapper.BoardMapper;
 import lombok.extern.slf4j.Slf4j;
 

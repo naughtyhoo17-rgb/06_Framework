@@ -83,11 +83,12 @@ document.querySelector("#selectMemberList").addEventListener("click", () => {
 
 });
 
+const memberNo = document.querySelector("#resetMemberNo");
+
 document.querySelector("#resetPw").addEventListener("click", () => {
 
-  const memberNo = document.querySelector("#resetMemberNo").value;
 
-  if(memberNo.trim().length == 0) {
+  if(memberNo.value.trim().length == 0) {
     alert("회원번호를 입력해주세요");
     return;
   }
@@ -95,7 +96,7 @@ document.querySelector("#resetPw").addEventListener("click", () => {
   fetch("/member/resetPw", {
     method : "PUT",
     headers : {"content-Type" : "application/json"},
-    body : memberNo
+    body : memberNo.value
   })
   .then(resp => resp.text())
   .then(result => {
@@ -104,7 +105,7 @@ document.querySelector("#resetPw").addEventListener("click", () => {
     
       alert("비밀번호가 초기화되었습니다.");
     
-      memberNo = "";
+      memberNo.value = "";
     } else {
     
       alert("회원번호를 확인해주세요");
@@ -113,11 +114,12 @@ document.querySelector("#resetPw").addEventListener("click", () => {
 
 });
 
+
 document.querySelector("#restorationBtn").addEventListener("click", () => {
+  
+  const memberNo = document.querySelector("#restorationMemberNo");
 
-  const memberNo = document.querySelector("#restorationMemberNo").value;
-
-  if(memberNo.trim().length == 0) {
+  if(memberNo.value.trim().length == 0) {
     alert("회원번호를 입력해주세요");
     return;
   }
@@ -125,7 +127,7 @@ document.querySelector("#restorationBtn").addEventListener("click", () => {
   fetch("/member/restoreDelFl", {
     method : "PUT",
     headers : {"content-Type" : "application/json"},
-    body : memberNo
+    body : memberNo.value
   })
   .then(resp => resp.text())
   .then(result => {
@@ -134,7 +136,7 @@ document.querySelector("#restorationBtn").addEventListener("click", () => {
       
       alert("회원복구 완료");
       
-      memberNo = "";
+      memberNo.value = "";
     } else {
       
       alert("회원번호를 확인해주세요");
