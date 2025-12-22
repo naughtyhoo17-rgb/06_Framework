@@ -39,5 +39,10 @@ public interface BoardService {
 	int updateReadCount(int boardNo);
 
 	int boardLike(Map<String, Integer> map);
+
+	/** DB 이미지 파일명 목록 조회 서비스
+	 * @return
+	 */
+	List<String> selectDbImageList();
 	
 }

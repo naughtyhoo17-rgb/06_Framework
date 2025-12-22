@@ -155,6 +155,14 @@ public class BoardServiceImpl implements BoardService{
 				
 		return -1;
 	}
+
+	@Override
+	public List<String> selectDbImageList() {
+		return mapper.selectDbImageList();
+	}
+	
+	
+	
 	
 	
 }
