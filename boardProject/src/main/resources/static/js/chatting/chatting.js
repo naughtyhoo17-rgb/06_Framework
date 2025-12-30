@@ -88,7 +88,7 @@ targetInput.addEventListener("input", e => {
 });
 
 
-// 채팅방 입장 또는 선택 함수
+// 새로운 채팅방 입장 또는 기존 채팅방 선택 함수
 function chattingEnter(e){
 
 	console.log(e.target); // 실제 클릭된 요소
@@ -97,11 +97,11 @@ function chattingEnter(e){
 	const targetNo = e.currentTarget.getAttribute("data-id");
 
 	fetch("/chatting/enter?targetNo="+targetNo)
-	.then(resp => resp.text())
+	.then(resp => resp.text()) // 채팅방 번호 숫자 단일값이므로 그냥 text()
 	.then(chattingRoomNo => {
 		console.log(chattingRoomNo);
 		
-		selectRoomList(); // 채팅방 목록 조회
+		selectRoomList(); // 채팅방 목록 조회 (추가된 채팅방까지 보여지도록)
 		
 		setTimeout(()=>{ 
 			const itemList = document.querySelectorAll(".chatting-item")
@@ -205,7 +205,7 @@ function selectRoomList(){
 
 				// 현재 채팅방을 보고있는 경우
 				// 비동기로 해당 채팅방 글을 읽음으로 표시
-				fetch("/chatting/updateReadFlag",{
+				fetch("/chatting/updateReadFl",{
 					method : "PUT",
 					headers : {"Content-Type": "application/json"},
 					body : JSON.stringify({"chattingRoomNo" : selectChattingNo, "memberNo" : loginMemberNo})

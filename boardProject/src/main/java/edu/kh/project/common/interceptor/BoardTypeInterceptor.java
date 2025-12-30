@@ -19,7 +19,7 @@ import lombok.extern.slf4j.Slf4j;
  * HandlerInterceptor 인터페이스 상속받아 구현
   - preHandle(전처리) : DispatcherServlet -> Controller 사이에 수행
   - postHandle(후처리) : Controller -> DispatcherServlet 사이에 수행
-  - afterCoompletion(뷰 완성 후) : ViewResolver -> DispatcherServler 사이에 수행
+  - afterCoompletion(뷰 완성 후) : ViewResolver -> DispatcherServlet 사이에 수행
  *
  * */
 @Slf4j
