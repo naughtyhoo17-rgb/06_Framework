@@ -1,3 +1,18 @@
+-- 샘플 회원 데이터 삽입
+INSERT INTO "MEMBER"
+VALUES(SEQ_MEMBER_NO.NEXTVAL,
+			 'admin2@kh.or.kr',
+			 '$2a$10$SC0KYLzAdtkZT12h5wTWT.csuiG.boiRC4ct6Mioe5puIo4W7GZmW',
+			 '관리자2',
+			 '01012341234',
+			 '01234^^^서울시 중구 남대문로 120^^^3층, E강의장',
+			 NULL,
+			 DEFAULT,
+			 DEFAULT,
+			 2
+);
+COMMIT;
+
 
 CREATE TABLE "MEMBER" (
 	"MEMBER_NO"	NUMBER		NOT NULL,
@@ -60,7 +75,7 @@ WHERE MEMBER_NO = 2;
 -- 회원 1번 유저일 암호화된 비밀번호로 업데이트 (평문: pass01!)
 UPDATE "MEMBER" SET
 MEMBER_PW = '$2a$10$irOXaiBusfX5Sg0TQ4oIfu.zPcb2RJ7xsa6E7UNa3DJwJrc9cKoCy'
-WHERE MEMBER_NO = 1;
+WHERE MEMBER_NO = 4;
 
 -- 로그인 SQL
 SELECT MEMBER_NO, MEMBER_EMAIL, MEMBER_NICKNAME,

@@ -46,7 +46,9 @@ public class Board {
 	// 게시글에 등록된 댓글 목록
 	private List<Comment> commentList;
 	
-	
+	// ---- React 관리자 페이지 필요 ----
+	// 게시판 종류명
+	private String boardName;
 	
 	
 }

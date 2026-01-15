@@ -7,12 +7,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.kh.project.admin.model.mapper.AdminMapper;
+import edu.kh.project.board.model.dto.Board;
 import edu.kh.project.common.util.Utility;
 import edu.kh.project.member.model.dto.Member;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
+@Slf4j
 @RequiredArgsConstructor
 public class AdminServiceImpl implements AdminService {
 
@@ -26,6 +29,8 @@ public class AdminServiceImpl implements AdminService {
 
 		if (loginMember == null)
 			return null;
+		
+		log.debug("loginMember : {}", loginMember);
 
 		if (!bcrypt.matches(inputMember.getMemberPw(), loginMember.getMemberPw()))
 			return null;
@@ -71,6 +76,20 @@ public class AdminServiceImpl implements AdminService {
 		return mapper.adminAccountList();
 	}
 
+	@Override
+	public Board maxReadCount() {
+		return mapper.maxReadCount();
+	}
+	
+	@Override
+	public List<Member> selectWithdrawnMemberList() {
+		return mapper.selectWithdrawnMemberList();
+	}
+	
+	@Override
+	public int restoreMember(int memberNo) {
+		return mapper.restoreMember(memberNo);
+	}
 	
 }
 
